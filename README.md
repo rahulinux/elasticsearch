@@ -33,6 +33,8 @@ kubectl create -f es-svc.yml
 kubectl create -f es-master-deployment.yml
 ```
 
+Note: Please note that, since it's JAVA based application, if your system has more memory then it will work faster, otherwize you will have to wait for start of the application. You can simply check `kubectl logs <pod-id>`, it's running or not then proceed next 
+
 ### Setup Client
 
 ```shell
