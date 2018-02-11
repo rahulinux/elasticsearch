@@ -1,11 +1,26 @@
 ---
+# Please don't use following static storage in Production
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv01
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/"
+---
 apiVersion: "apps/v1beta1"
 kind: StatefulSet
 metadata:
   name: es-data
 spec:
   serviceName: es-data
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -37,11 +52,11 @@ spec:
           protocol: TCP
         resources:
           limits:
-            cpu: "500m"
-            memory: 2Gi
+            cpu: "100m"
+            memory: 512Mi
           requests:
-           cpu: "500m"
-           memory: 1Gi
+           cpu: "100m"
+           memory: 512Mi
         securityContext:
           privileged: true
           capabilities:
@@ -55,7 +70,9 @@ spec:
           httpGet:
             path: /_cluster/health?local=true
             port: 9200
-          initialDelaySeconds: 5
+          periodSeconds: 15
+          timeoutSeconds: 10
+          initialDelaySeconds: 30
         env:
         - name: KUBERNETES_CA_CERTIFICATE_FILE
           value: /var/run/secrets/kubernetes.io/service_account/ca.crt
@@ -70,7 +87,7 @@ spec:
         - name: HTTP_ENABLE
           value: "true"
         - name: ES_JAVA_OPTS
-          value: "-Djava.net.preferIPv4Stack=true -Xms1024m -Xmx1024m"
+          value: "-Djava.net.preferIPv4Stack=true -Xms350m -Xmx350m"
         # These volume mounts are persistent. They are like inline claims,
         # but not exactly because the names need to match exactly one of
         # the stateful pod volumes.

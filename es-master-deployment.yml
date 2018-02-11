@@ -31,18 +31,20 @@ spec:
         image: "quay.io/pires/docker-elasticsearch-kubernetes:5.5.0" 
         resources:
           limits:
-            cpu: "200m"
-            memory: 2Gi
+            cpu: "50m"
+            memory: 512Mi
           requests:
-           cpu: "200m"
-           memory: 2Gi
+           cpu: "50m"
+           memory: 256Mi
         securityContext:
            privileged: true
         readinessProbe:
           httpGet:
             path: /_cluster/health?local=true
             port: 9200
-          initialDelaySeconds: 5
+          periodSeconds: 15
+          timeoutSeconds: 10
+          initialDelaySeconds: 30
         env:
         - name: KUBERNETES_CA_CERTIFICATE_FILE
           value: /var/run/secrets/kubernetes.io/service_account/ca.crt
@@ -59,7 +61,7 @@ spec:
         - name: HTTP_ENABLE
           value: "true"
         - name: ES_JAVA_OPTS
-          value: "-Djava.net.preferIPv4Stack=true -Xms1024m -Xmx1024m"
+          value: "-Djava.net.preferIPv4Stack=true -Xms256m -Xmx256m"
         ports:
         - containerPort: 9300
           name: transport
